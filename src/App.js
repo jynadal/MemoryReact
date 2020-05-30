@@ -1,24 +1,30 @@
 import React, { Component } from 'react'
 import shuffle from 'lodash.shuffle'
+import HighScoreInput from './HighScoreInput'
 
 import './App.css'
 
 import Card from './Card'
 import GuessCount from './GuessCount'
-import HallOfFame, { FAKE_HOF } from './HallOfFame'
+import HallOfFame from './HallOfFame'
 
 const SIDE = 6
 const SYMBOLS = '🌹🎉💖🎩🐶🐱🐬🍗🐽🍖🌛🍕🍎🍌🍟🐼🍓🐧'
-const VISUAL_PAUSE_MSECS = 750
+const VISUAL_PAUSE_MSECS = 850
 
 class App extends Component {
   state = {
     cards: this.generateCards(),
     currentPair: [],
     guesses: 0,
+    hallOfFame: null,
     matchedCardIndices: [],
   }
 
+  // Arrow fx for binding
+  displayHallOfFame = hallOfFame => {
+    this.setState({ hallOfFame })
+  }
 
   generateCards() {
     const result = []
@@ -40,7 +46,7 @@ class App extends Component {
     }
 
     if (currentPair.includes(index)) {
-      return indexMatched ? 'justMatched' : 'justMisMatched'
+      return indexMatched ? 'justMatched' : 'justMismatched'
     }
 
     return indexMatched ? 'visible' : 'hidden'
@@ -50,7 +56,7 @@ class App extends Component {
   // Arrow fx for binding
   //ou @autobin
   handleCardClick = index => {
-    const { currentPair } =this.state
+    const { currentPair } = this.state
 
     if (currentPair.length === 2) {
       return
@@ -78,7 +84,7 @@ class App extends Component {
   }
 
   render() {
-    const { cards, guesses, matchedCardIndices } = this.state
+    const { cards, guesses, hallOfFame, matchedCardIndices } = this.state
     const won = matchedCardIndices.length === cards.length
     return (
       <div className="memory">
@@ -91,8 +97,15 @@ class App extends Component {
           key={index} 
           onClick={this.handleCardClick} />
         ))}
-
-        {won && <HallOfFame entries={FAKE_HOF} />}
+        
+        {
+          won && 
+          (hallOfFame ? (
+            <HallOfFame entries={hallOfFame} />
+          ) : (
+            <HighScoreInput guesses={guesses} onStored={this.displayHallOfFame} />
+          ))
+        }
       </div>
     )
   }
